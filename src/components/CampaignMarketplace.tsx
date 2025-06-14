@@ -33,6 +33,7 @@ import {
   CheckCircle as CheckIcon,
   Category as CategoryIcon
 } from '@mui/icons-material';
+import MenuItem from '@mui/material/MenuItem';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -51,11 +52,16 @@ interface Campaign {
   example_subject_lines: string[];
   example_email_preview: string;
   is_active: boolean;
+  specialty_tags?: string[];
+  channel_type?: string;
+  compliance_approved?: boolean;
+  personalization_vars?: Record<string, string>;
   campaign_metrics?: {
     total_purchases: number;
     average_open_rate: number;
     average_response_rate: number;
   };
+  campaign_performance_metrics?: any[];
 }
 
 const CampaignMarketplace: React.FC = () => {
@@ -69,8 +75,21 @@ const CampaignMarketplace: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [purchaseOpen, setPurchaseOpen] = useState(false);
   const [purchases, setPurchases] = useState<any[]>([]);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
 
-  const categories = ['All', 'Healthcare', 'Retail', 'Services', 'Technology'];
+  const categories = ['All', 'Healthcare', 'Medical Spa', 'Dental'];
+  const specialties = [
+    { value: 'dental-implants', label: 'Dental Implants' },
+    { value: 'robotic-surgery', label: 'Robotic Surgery' },
+    { value: 'injectables', label: 'Injectables' },
+    { value: 'botox', label: 'Botox' },
+    { value: 'dermal-fillers', label: 'Dermal Fillers' },
+    { value: 'coolsculpting', label: 'CoolSculpting' },
+    { value: 'microneedling', label: 'Microneedling' },
+    { value: 'skin-rejuvenation', label: 'Skin Rejuvenation' },
+    { value: 'body-contouring', label: 'Body Contouring' },
+    { value: 'membership', label: 'Membership Programs' }
+  ];
 
   useEffect(() => {
     fetchCampaigns();
@@ -81,7 +100,7 @@ const CampaignMarketplace: React.FC = () => {
 
   useEffect(() => {
     filterCampaigns();
-  }, [campaigns, selectedTab, searchTerm]);
+  }, [campaigns, selectedTab, searchTerm, selectedSpecialty]);
 
   const fetchCampaigns = async () => {
     try {
@@ -123,7 +142,21 @@ const CampaignMarketplace: React.FC = () => {
 
     // Filter by category
     if (selectedTab > 0) {
-      filtered = filtered.filter(c => c.category === categories[selectedTab]);
+      filtered = filtered.filter(c => {
+        if (categories[selectedTab] === 'Medical Spa') {
+          return c.industry === 'Medical Spa';
+        } else if (categories[selectedTab] === 'Dental') {
+          return c.industry === 'Dental';
+        }
+        return c.category === categories[selectedTab];
+      });
+    }
+
+    // Filter by specialty
+    if (selectedSpecialty) {
+      filtered = filtered.filter(c => 
+        c.specialty_tags?.includes(selectedSpecialty)
+      );
     }
 
     // Filter by search term
@@ -205,11 +238,32 @@ const CampaignMarketplace: React.FC = () => {
           sx={{ mb: 2 }}
         />
         
-        <Tabs value={selectedTab} onChange={(_, val) => setSelectedTab(val)}>
-          {categories.map((cat, idx) => (
-            <Tab key={idx} label={cat} />
-          ))}
-        </Tabs>
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Tabs value={selectedTab} onChange={(_, val) => setSelectedTab(val)}>
+              {categories.map((cat, idx) => (
+                <Tab key={idx} label={cat} />
+              ))}
+            </Tabs>
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="Specialty"
+              value={selectedSpecialty}
+              onChange={(e) => setSelectedSpecialty(e.target.value)}
+            >
+              <MenuItem value="">All Specialties</MenuItem>
+              {specialties.map((specialty) => (
+                <MenuItem key={specialty.value} value={specialty.value}>
+                  {specialty.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Campaign Grid */}
