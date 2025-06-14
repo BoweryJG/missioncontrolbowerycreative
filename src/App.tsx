@@ -41,6 +41,7 @@ import SocialMedia from './components/SocialMedia';
 import Analytics from './components/Analytics';
 import CampaignMarketplace from './components/CampaignMarketplace';
 import CampaignManager from './components/CampaignManager';
+import ClientManagement from './components/ClientManagement';
 
 // Mission Control Theme
 const theme = createTheme({
@@ -237,7 +238,7 @@ function App() {
       case 'dashboard':
         return renderDashboard();
       case 'clients':
-        return renderPlaceholder('Client Management');
+        return <ClientManagement />;
       case 'contacts':
         return renderPlaceholder('Contact Management');
       case 'chatbots':
