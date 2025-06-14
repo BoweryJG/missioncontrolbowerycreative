@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Typography,
-  Grid,
   Paper,
   Card,
   CardContent,
@@ -36,10 +35,8 @@ import {
   Add,
   Payment,
   Edit,
-  Delete,
   Search,
   Email,
-  Phone,
   Business,
   AttachMoney,
   TrendingUp,
@@ -185,9 +182,9 @@ export default function ClientManagement() {
     };
 
     return (
-      <Grid container spacing={3}>
+      <Box>
         {/* Stats Cards */}
-        <Grid item xs={12} md={6} lg={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 3, mb: 4 }}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -202,9 +199,7 @@ export default function ClientManagement() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
 
-        <Grid item xs={12} md={6} lg={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -219,9 +214,7 @@ export default function ClientManagement() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
 
-        <Grid item xs={12} md={6} lg={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -236,9 +229,7 @@ export default function ClientManagement() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
 
-        <Grid item xs={12} md={6} lg={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -253,26 +244,24 @@ export default function ClientManagement() {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Recent Activity */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Recent Client Activity
-            </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              Dr. Sarah Johnson just purchased 100 campaign credits - $299
-            </Alert>
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Aesthetics Plus upgraded to Agency plan - $1,299/month
-            </Alert>
-            <Alert severity="warning">
-              Wellness Center NYC trial expires in 5 days
-            </Alert>
-          </Paper>
-        </Grid>
-      </Grid>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Recent Client Activity
+          </Typography>
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Dr. Sarah Johnson just purchased 100 campaign credits - $299
+          </Alert>
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Aesthetics Plus upgraded to Agency plan - $1,299/month
+          </Alert>
+          <Alert severity="warning">
+            Wellness Center NYC trial expires in 5 days
+          </Alert>
+        </Paper>
+      </Box>
     );
   };
 
@@ -413,57 +402,47 @@ export default function ClientManagement() {
       <Dialog open={addClientOpen} onClose={() => setAddClientOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Add New Client</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Full Name"
-                value={newClient.name}
-                onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                type="email"
-                value={newClient.email}
-                onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Phone"
-                value={newClient.phone}
-                onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Company"
-                value={newClient.company}
-                onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth>
-                <InputLabel>Industry</InputLabel>
-                <Select
-                  value={newClient.industry}
-                  label="Industry"
-                  onChange={(e) => setNewClient({ ...newClient, industry: e.target.value })}
-                >
-                  <MenuItem value="Dental">Dental</MenuItem>
-                  <MenuItem value="Medical Aesthetics">Medical Aesthetics</MenuItem>
-                  <MenuItem value="Healthcare">Healthcare</MenuItem>
-                  <MenuItem value="Wellness">Wellness</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2, mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Full Name"
+              value={newClient.name}
+              onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={newClient.email}
+              onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Phone"
+              value={newClient.phone}
+              onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Company"
+              value={newClient.company}
+              onChange={(e) => setNewClient({ ...newClient, company: e.target.value })}
+            />
+            <FormControl fullWidth sx={{ gridColumn: '1 / -1' }}>
+              <InputLabel>Industry</InputLabel>
+              <Select
+                value={newClient.industry}
+                label="Industry"
+                onChange={(e) => setNewClient({ ...newClient, industry: e.target.value })}
+              >
+                <MenuItem value="Dental">Dental</MenuItem>
+                <MenuItem value="Medical Aesthetics">Medical Aesthetics</MenuItem>
+                <MenuItem value="Healthcare">Healthcare</MenuItem>
+                <MenuItem value="Wellness">Wellness</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddClientOpen(false)}>Cancel</Button>
