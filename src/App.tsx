@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CssBaseline,
   ThemeProvider,
@@ -42,6 +42,8 @@ import Analytics from './components/Analytics';
 import CampaignMarketplace from './components/CampaignMarketplace';
 import CampaignManager from './components/CampaignManager';
 import ClientManagement from './components/ClientManagement';
+import LoginModal from './components/LoginModal';
+import { useAuth } from './contexts/AuthContext';
 
 // Mission Control Theme
 const theme = createTheme({
@@ -131,8 +133,16 @@ const recentActivities = [
 ];
 
 function App() {
+  const { user, loading } = useAuth();
   const [selectedView, setSelectedView] = useState('dashboard');
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setLoginOpen(true);
+    }
+  }, [user, loading]);
 
   const renderDashboard = () => (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -290,6 +300,11 @@ function App() {
             <Typography variant="body2" color="textSecondary">
               Bowery Creative Agency
             </Typography>
+            {user && (
+              <Typography variant="body2" sx={{ ml: 2 }}>
+                {user.email}
+              </Typography>
+            )}
           </Toolbar>
         </AppBar>
 
@@ -379,6 +394,11 @@ function App() {
           {renderContent()}
         </Box>
       </Box>
+      
+      <LoginModal 
+        open={loginOpen && !user && !loading} 
+        onClose={() => setLoginOpen(false)} 
+      />
     </ThemeProvider>
   );
 }
