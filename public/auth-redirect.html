@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+    <script>
+        // Check if we have an access token in the URL
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+            // Get the current URL with the hash
+            const hash = window.location.hash;
+            
+            // Redirect to the correct port with the auth token
+            window.location.href = 'http://localhost:5174/' + hash;
+        } else {
+            // If no token, just redirect to the app
+            window.location.href = 'http://localhost:5174/';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting to Mission Control...</p>
+</body>
+</html>
