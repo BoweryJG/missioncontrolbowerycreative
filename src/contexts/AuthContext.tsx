@@ -44,10 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check current session
-    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }: any) => {
+      console.log('Initial session check:', { session, error });
       if (session?.user) {
         const userWithRoles = session.user as User;
         setUser(userWithRoles);
+        console.log('User set:', userWithRoles);
         
         // Check if user is admin
         const { data: roleData } = await supabase
@@ -61,12 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
         setIsAdmin(false);
+        console.log('No session found');
       }
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
+      console.log('Auth state changed:', event, session);
       if (session?.user) {
         const userWithRoles = session.user as User;
         setUser(userWithRoles);
