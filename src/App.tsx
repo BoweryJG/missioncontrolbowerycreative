@@ -44,6 +44,8 @@ import CampaignManager from './components/CampaignManager';
 import ClientManagement from './components/ClientManagement';
 import LoginModal from './components/LoginModal';
 import { useAuth } from './contexts/AuthContext';
+import { IconButton } from '@mui/material';
+import { Logout as LogoutIcon } from '@mui/icons-material';
 
 // Mission Control Theme
 const theme = createTheme({
@@ -133,7 +135,7 @@ const recentActivities = [
 ];
 
 function App() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState('dashboard');
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -143,6 +145,15 @@ function App() {
       setLoginOpen(true);
     }
   }, [user, loading]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setLoginOpen(true);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const renderDashboard = () => (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -301,9 +312,14 @@ function App() {
               Bowery Creative Agency
             </Typography>
             {user && (
-              <Typography variant="body2" sx={{ ml: 2 }}>
-                {user.email}
-              </Typography>
+              <>
+                <Typography variant="body2" sx={{ ml: 2 }}>
+                  {user.email}
+                </Typography>
+                <IconButton color="inherit" onClick={handleSignOut} sx={{ ml: 1 }}>
+                  <LogoutIcon />
+                </IconButton>
+              </>
             )}
           </Toolbar>
         </AppBar>

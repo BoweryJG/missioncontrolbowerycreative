@@ -8,11 +8,13 @@ interface User {
     organization_id?: string;
     role?: string;
   };
+  roles?: string[];
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -21,6 +23,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  isAdmin: false,
   signIn: async () => {},
   signInWithGoogle: async () => {},
   signOut: async () => {},
@@ -37,17 +40,50 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Check current session
-    supabase.auth.getSession().then(({ data: { session } }: any) => {
-      setUser(session?.user as User | null);
+    supabase.auth.getSession().then(async ({ data: { session } }: any) => {
+      if (session?.user) {
+        const userWithRoles = session.user as User;
+        setUser(userWithRoles);
+        
+        // Check if user is admin
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userWithRoles.id)
+          .eq('role', 'admin')
+          .single();
+        
+        setIsAdmin(!!roleData);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
-      setUser(session?.user as User | null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+      if (session?.user) {
+        const userWithRoles = session.user as User;
+        setUser(userWithRoles);
+        
+        // Check if user is admin
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userWithRoles.id)
+          .eq('role', 'admin')
+          .single();
+        
+        setIsAdmin(!!roleData);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -74,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

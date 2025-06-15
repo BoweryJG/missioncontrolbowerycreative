@@ -47,7 +47,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
     
     try {
       await signInWithGoogle();
-      // The redirect will happen automatically
+      // Don't close modal - let OAuth redirect handle it
+      // The page will reload after successful auth
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
       setLoading(false);
