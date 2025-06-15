@@ -143,6 +143,8 @@ function App() {
   useEffect(() => {
     if (!loading && !user) {
       setLoginOpen(true);
+    } else if (user) {
+      setLoginOpen(false);
     }
   }, [user, loading]);
 
