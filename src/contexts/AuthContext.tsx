@@ -95,8 +95,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
-    // Use the current window location for redirect
-    const redirectUrl = `${window.location.protocol}//${window.location.host}/`;
+    // Use production URL in production, current location in development
+    const redirectUrl = import.meta.env.PROD 
+      ? 'https://bowerycreative-dashboard.netlify.app/'
+      : `${window.location.protocol}//${window.location.host}/`;
     console.log('OAuth redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signInWithOAuth({
