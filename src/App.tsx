@@ -18,7 +18,9 @@ import {
   Card,
   CardContent,
   Button,
-  Alert
+  Alert,
+  useMediaQuery,
+  useTheme as useThemeHook
 } from '@mui/material';
 import {
   Dashboard,
@@ -137,8 +139,15 @@ const recentActivities = [
 function App() {
   const { user, loading, signOut } = useAuth();
   const [selectedView, setSelectedView] = useState('dashboard');
-  const [drawerOpen, setDrawerOpen] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
+  
+  // Mobile detection
+  const themeHook = useThemeHook();
+  const isMobile = useMediaQuery(themeHook.breakpoints.down('md'));
+  const isTablet = useMediaQuery(themeHook.breakpoints.down('lg'));
+  
+  // Set drawer open state based on screen size
+  const [drawerOpen, setDrawerOpen] = useState(!isMobile);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -147,6 +156,11 @@ function App() {
       setLoginOpen(false);
     }
   }, [user, loading]);
+  
+  // Auto-close drawer on mobile when screen size changes
+  useEffect(() => {
+    setDrawerOpen(!isMobile);
+  }, [isMobile]);
 
   const handleSignOut = async () => {
     try {
@@ -310,12 +324,12 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main' }}>
               Mission Control
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" color="textSecondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
               Bowery Creative Agency
             </Typography>
             {user && (
               <>
-                <Typography variant="body2" sx={{ ml: 2 }}>
+                <Typography variant="body2" sx={{ ml: 2, display: { xs: 'none', md: 'block' } }}>
                   {user.email}
                 </Typography>
                 <IconButton color="inherit" onClick={handleSignOut} sx={{ ml: 1 }}>
@@ -328,9 +342,10 @@ function App() {
 
         {/* Navigation Drawer */}
         <Drawer
-          variant="persistent"
+          variant={isMobile ? 'temporary' : 'persistent'}
           anchor="left"
           open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
           sx={{
             width: drawerWidth,
             flexShrink: 0,
@@ -348,7 +363,12 @@ function App() {
               {navigationItems.map((item) => (
                 <ListItem 
                   key={item.id}
-                  onClick={() => setSelectedView(item.id)}
+                  onClick={() => {
+                    setSelectedView(item.id);
+                    if (isMobile) {
+                      setDrawerOpen(false);
+                    }
+                  }}
                   sx={{ 
                     cursor: 'pointer',
                     mx: 1,
@@ -405,7 +425,10 @@ function App() {
               easing: theme.transitions.easing.sharp,
               duration: theme.transitions.duration.leavingScreen,
             }),
-            marginLeft: drawerOpen ? 0 : `-${drawerWidth}px`,
+            marginLeft: {
+              xs: 0, // No margin on mobile
+              md: drawerOpen ? 0 : `-${drawerWidth}px`, // Margin only on desktop
+            },
           }}
         >
           <Toolbar />
