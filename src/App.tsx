@@ -34,7 +34,8 @@ import {
   Business,
   Menu as MenuIcon,
   Campaign as CampaignIcon,
-  ShoppingCart as ShoppingCartIcon
+  ShoppingCart as ShoppingCartIcon,
+  Receipt as ReceiptIcon
 } from '@mui/icons-material';
 import ContentStudio from './components/ContentStudio';
 import EmailMarketing from './components/EmailMarketing';
@@ -46,6 +47,7 @@ import CampaignManager from './components/CampaignManager';
 import ClientManagement from './components/ClientManagement';
 import ClientDashboard from './components/ClientDashboard';
 import LoginModal from './components/LoginModal';
+import { BillingAdmin } from './components/BillingAdmin';
 import { useAuth } from './contexts/AuthContext';
 import { IconButton } from '@mui/material';
 import { Logout as LogoutIcon } from '@mui/icons-material';
@@ -111,6 +113,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <Dashboard /> },
   { id: 'clients', label: 'Clients', icon: <Business />, badge: 3 },
+  { id: 'billing', label: 'Billing', icon: <ReceiptIcon /> },
   { id: 'contacts', label: 'Contacts', icon: <People />, badge: 12 },
   { id: 'chatbots', label: 'AI Chatbots', icon: <Chat />, badge: 2 },
   { id: 'campaigns', label: 'Campaign Marketplace', icon: <CampaignIcon /> },
@@ -287,6 +290,8 @@ function App() {
         return renderDashboard();
       case 'clients':
         return <ClientManagement />;
+      case 'billing':
+        return <BillingAdmin />;
       case 'contacts':
         return renderPlaceholder('Contact Management');
       case 'chatbots':
