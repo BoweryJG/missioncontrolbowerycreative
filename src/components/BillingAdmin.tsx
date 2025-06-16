@@ -10,7 +10,6 @@ import {
   Stack,
   Grid,
   Chip,
-  Divider,
 } from '@mui/material';
 import { Add as AddIcon, Receipt as ReceiptIcon } from '@mui/icons-material';
 import { supabase } from '../lib/supabase';
@@ -116,7 +115,7 @@ export const BillingAdmin: React.FC = () => {
         full_name: profile.full_name || 'Unnamed Customer',
         company_name: profile.company_name,
         monthly_billing: profile.monthly_billing,
-        status: profile.customers?.[0]?.stripe_customer_id ? 'active' : 'pending' as const,
+        status: (profile.customers?.[0]?.stripe_customer_id ? 'active' : 'pending') as 'active' | 'inactive' | 'pending',
       })) || [];
 
       setCustomers(mappedCustomers);
@@ -164,7 +163,7 @@ export const BillingAdmin: React.FC = () => {
       </Typography>
       
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -229,7 +228,7 @@ export const BillingAdmin: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
