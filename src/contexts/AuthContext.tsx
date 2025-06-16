@@ -68,31 +68,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('User set:', userWithRoles);
         
         // Check if user is admin
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', userWithRoles.id)
           .eq('role', 'admin')
           .single();
         
-        const adminStatus = !!roleData;
+        const adminStatus = !!roleData && !roleError;
+        console.log('Admin check:', { roleData, roleError, adminStatus });
         setIsAdmin(adminStatus);
         
-        // Check if user is authorized client
-        const { data: clientData } = await supabase
-          .from('authorized_clients')
-          .select('*')
-          .eq('user_id', userWithRoles.id)
-          .eq('is_active', true)
-          .single();
+        // Check if user is authorized client (only if not admin)
+        let clientStatus = false;
+        let clientDataResult = null;
         
-        if (clientData) {
-          setIsAuthorizedClient(true);
-          setClientData(clientData);
+        if (!adminStatus) {
+          const { data: clientData, error: clientError } = await supabase
+            .from('authorized_clients')
+            .select('*')
+            .eq('user_id', userWithRoles.id)
+            .eq('is_active', true)
+            .single();
+          
+          console.log('Client check:', { clientData, clientError });
+          if (clientData && !clientError) {
+            clientStatus = true;
+            clientDataResult = clientData;
+          }
         }
         
-        // Set overall access
-        setHasAccess(adminStatus || !!clientData);
+        setIsAuthorizedClient(clientStatus);
+        setClientData(clientDataResult);
+        
+        // Set overall access - admin OR authorized client
+        const overallAccess = adminStatus || clientStatus;
+        console.log('Access granted:', { adminStatus, clientStatus, overallAccess });
+        setHasAccess(overallAccess);
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -112,34 +124,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userWithRoles);
         
         // Check if user is admin
-        const { data: roleData } = await supabase
+        const { data: roleData, error: roleError } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', userWithRoles.id)
           .eq('role', 'admin')
           .single();
         
-        const adminStatus = !!roleData;
+        const adminStatus = !!roleData && !roleError;
+        console.log('Auth change - Admin check:', { roleData, roleError, adminStatus });
         setIsAdmin(adminStatus);
         
-        // Check if user is authorized client
-        const { data: clientData } = await supabase
-          .from('authorized_clients')
-          .select('*')
-          .eq('user_id', userWithRoles.id)
-          .eq('is_active', true)
-          .single();
+        // Check if user is authorized client (only if not admin)
+        let clientStatus = false;
+        let clientDataResult = null;
         
-        if (clientData) {
-          setIsAuthorizedClient(true);
-          setClientData(clientData);
-        } else {
-          setIsAuthorizedClient(false);
-          setClientData(null);
+        if (!adminStatus) {
+          const { data: clientData, error: clientError } = await supabase
+            .from('authorized_clients')
+            .select('*')
+            .eq('user_id', userWithRoles.id)
+            .eq('is_active', true)
+            .single();
+          
+          console.log('Auth change - Client check:', { clientData, clientError });
+          if (clientData && !clientError) {
+            clientStatus = true;
+            clientDataResult = clientData;
+          }
         }
         
-        // Set overall access
-        setHasAccess(adminStatus || !!clientData);
+        setIsAuthorizedClient(clientStatus);
+        setClientData(clientDataResult);
+        
+        // Set overall access - admin OR authorized client
+        const overallAccess = adminStatus || clientStatus;
+        console.log('Auth change - Access granted:', { adminStatus, clientStatus, overallAccess });
+        setHasAccess(overallAccess);
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -153,8 +174,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    console.log('Attempting to sign in with:', email);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    console.log('Sign in result:', { data, error });
+    if (error) {
+      console.error('Sign in error:', error);
+      throw error;
+    }
+    console.log('Sign in successful, session:', data.session);
   };
 
   const signInWithGoogle = async () => {

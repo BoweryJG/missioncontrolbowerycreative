@@ -35,9 +35,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ open, onClose }) => {
     setLoading(true);
     
     try {
+      console.log('LoginModal: Starting sign in process');
       await signIn(email, password);
+      console.log('LoginModal: Sign in completed, user:', user, 'hasAccess:', hasAccess);
       onClose();
     } catch (err: any) {
+      console.error('LoginModal: Sign in error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);

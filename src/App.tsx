@@ -151,6 +151,7 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
 
   useEffect(() => {
+    // TEMPORARY: Skip auth check for testing
     if (!loading && !user) {
       setLoginOpen(true);
     } else if (user && !hasAccess) {
