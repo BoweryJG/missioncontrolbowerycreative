@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Container,
-  Grid2 as Grid,
+  Grid,
   Paper,
   Card,
   CardContent,
@@ -25,7 +25,6 @@ import {
   CheckCircle,
   Schedule,
   AttachMoney,
-  Group,
   ContentPaste,
   RocketLaunch,
 } from '@mui/icons-material';
@@ -143,14 +142,14 @@ const ClientDashboard: React.FC = () => {
             size="small"
           />
           <Typography variant="body2" color="textSecondary">
-            Member since {new Date(user?.created_at || '').toLocaleDateString()}
+            Active Client
           </Typography>
         </Box>
       </Box>
 
       {/* Quick Stats */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -172,7 +171,7 @@ const ClientDashboard: React.FC = () => {
         </Grid>
 
         {components.campaigns && (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -191,7 +190,7 @@ const ClientDashboard: React.FC = () => {
         )}
 
         {components.email && (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -209,7 +208,7 @@ const ClientDashboard: React.FC = () => {
           </Grid>
         )}
 
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -231,7 +230,7 @@ const ClientDashboard: React.FC = () => {
       <Grid container spacing={3}>
         {/* Recent Campaigns */}
         {components.campaigns && (
-          <Grid size={{ xs: 12, md: 8 }}>
+          <Grid item xs={12} md={8}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Recent Campaigns
@@ -280,7 +279,7 @@ const ClientDashboard: React.FC = () => {
         )}
 
         {/* Quick Actions */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Quick Actions
@@ -288,9 +287,9 @@ const ClientDashboard: React.FC = () => {
             <List>
               {components.campaigns && (
                 <ListItem
-                  button
+                  component="button"
                   onClick={() => window.location.hash = '#campaigns'}
-                  sx={{ borderRadius: 1, mb: 1 }}
+                  sx={{ borderRadius: 1, mb: 1, cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
                 >
                   <ListItemIcon>
                     <RocketLaunch color="primary" />
@@ -303,9 +302,9 @@ const ClientDashboard: React.FC = () => {
               )}
               {components.email && (
                 <ListItem
-                  button
+                  component="button"
                   onClick={() => window.location.hash = '#email'}
-                  sx={{ borderRadius: 1, mb: 1 }}
+                  sx={{ borderRadius: 1, mb: 1, cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
                 >
                   <ListItemIcon>
                     <Email color="primary" />
@@ -317,9 +316,9 @@ const ClientDashboard: React.FC = () => {
                 </ListItem>
               )}
               <ListItem
-                button
+                component="button"
                 onClick={() => window.location.hash = '#analytics'}
-                sx={{ borderRadius: 1, mb: 1 }}
+                sx={{ borderRadius: 1, mb: 1, cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
               >
                 <ListItemIcon>
                   <AnalyticsIcon color="primary" />
