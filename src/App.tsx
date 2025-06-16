@@ -13,7 +13,7 @@ import {
   ListItemIcon,
   ListItemText,
   Container,
-  Grid,
+  Grid2 as Grid,
   Paper,
   Card,
   CardContent,
@@ -44,6 +44,7 @@ import Analytics from './components/Analytics';
 import CampaignMarketplace from './components/CampaignMarketplace';
 import CampaignManager from './components/CampaignManager';
 import ClientManagement from './components/ClientManagement';
+import ClientDashboard from './components/ClientDashboard';
 import LoginModal from './components/LoginModal';
 import { useAuth } from './contexts/AuthContext';
 import { IconButton } from '@mui/material';
@@ -137,7 +138,7 @@ const recentActivities = [
 ];
 
 function App() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, hasAccess, isAdmin, isAuthorizedClient, clientData } = useAuth();
   const [selectedView, setSelectedView] = useState('dashboard');
   const [loginOpen, setLoginOpen] = useState(false);
   
@@ -152,10 +153,13 @@ function App() {
   useEffect(() => {
     if (!loading && !user) {
       setLoginOpen(true);
-    } else if (user) {
+    } else if (user && !hasAccess) {
+      // User is logged in but not authorized
+      setLoginOpen(true);
+    } else if (user && hasAccess) {
       setLoginOpen(false);
     }
-  }, [user, loading]);
+  }, [user, loading, hasAccess]);
   
   // Auto-close drawer on mobile when screen size changes
   useEffect(() => {
@@ -271,6 +275,12 @@ function App() {
   );
 
   const renderContent = () => {
+    // Show client dashboard for authorized clients
+    if (isAuthorizedClient && !isAdmin) {
+      return <ClientDashboard />;
+    }
+    
+    // Show admin dashboard for admins
     switch (selectedView) {
       case 'dashboard':
         return renderDashboard();
@@ -314,15 +324,17 @@ function App() {
           }}
         >
           <Toolbar>
-            <Button
-              color="inherit"
-              onClick={() => setDrawerOpen(!drawerOpen)}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </Button>
+            {isAdmin && (
+              <Button
+                color="inherit"
+                onClick={() => setDrawerOpen(!drawerOpen)}
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </Button>
+            )}
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main' }}>
-              Mission Control
+              Mission Control {isAuthorizedClient && !isAdmin && `- ${clientData?.organization_name}`}
             </Typography>
             <Typography variant="body2" color="textSecondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
               Bowery Creative Agency
@@ -340,23 +352,24 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        {/* Navigation Drawer */}
-        <Drawer
-          variant={isMobile ? 'temporary' : 'persistent'}
-          anchor="left"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
+        {/* Navigation Drawer - Only show for admins */}
+        {isAdmin && (
+          <Drawer
+            variant={isMobile ? 'temporary' : 'persistent'}
+            anchor="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            sx={{
               width: drawerWidth,
-              boxSizing: 'border-box',
-              background: 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)',
-              borderRight: '1px solid #333',
-            },
-          }}
-        >
+              flexShrink: 0,
+              '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+                background: 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)',
+                borderRight: '1px solid #333',
+              },
+            }}
+          >
           <Toolbar />
           <Box sx={{ overflow: 'auto', mt: 2 }}>
             <List>
@@ -415,6 +428,7 @@ function App() {
             </List>
           </Box>
         </Drawer>
+        )}
 
         {/* Main Content */}
         <Box
@@ -427,7 +441,7 @@ function App() {
             }),
             marginLeft: {
               xs: 0, // No margin on mobile
-              md: drawerOpen ? 0 : `-${drawerWidth}px`, // Margin only on desktop
+              md: isAdmin && drawerOpen ? 0 : isAdmin ? `-${drawerWidth}px` : 0, // Margin only for admin with drawer
             },
           }}
         >

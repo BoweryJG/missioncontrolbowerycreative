@@ -11,10 +11,20 @@ interface User {
   roles?: string[];
 }
 
+interface ClientData {
+  organization_name: string;
+  subscription_level: string;
+  subscription_features: any;
+  is_active: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isAuthorizedClient: boolean;
+  hasAccess: boolean;
+  clientData: ClientData | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -24,6 +34,9 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAdmin: false,
+  isAuthorizedClient: false,
+  hasAccess: false,
+  clientData: null,
   signIn: async () => {},
   signInWithGoogle: async () => {},
   signOut: async () => {},
@@ -41,6 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthorizedClient, setIsAuthorizedClient] = useState(false);
+  const [clientData, setClientData] = useState<ClientData | null>(null);
+  const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
     // Check current session
@@ -59,10 +75,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('role', 'admin')
           .single();
         
-        setIsAdmin(!!roleData);
+        const adminStatus = !!roleData;
+        setIsAdmin(adminStatus);
+        
+        // Check if user is authorized client
+        const { data: clientData } = await supabase
+          .from('authorized_clients')
+          .select('*')
+          .eq('user_id', userWithRoles.id)
+          .eq('is_active', true)
+          .single();
+        
+        if (clientData) {
+          setIsAuthorizedClient(true);
+          setClientData(clientData);
+        }
+        
+        // Set overall access
+        setHasAccess(adminStatus || !!clientData);
       } else {
         setUser(null);
         setIsAdmin(false);
+        setIsAuthorizedClient(false);
+        setClientData(null);
+        setHasAccess(false);
         console.log('No session found');
       }
       setLoading(false);
@@ -83,10 +119,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('role', 'admin')
           .single();
         
-        setIsAdmin(!!roleData);
+        const adminStatus = !!roleData;
+        setIsAdmin(adminStatus);
+        
+        // Check if user is authorized client
+        const { data: clientData } = await supabase
+          .from('authorized_clients')
+          .select('*')
+          .eq('user_id', userWithRoles.id)
+          .eq('is_active', true)
+          .single();
+        
+        if (clientData) {
+          setIsAuthorizedClient(true);
+          setClientData(clientData);
+        } else {
+          setIsAuthorizedClient(false);
+          setClientData(null);
+        }
+        
+        // Set overall access
+        setHasAccess(adminStatus || !!clientData);
       } else {
         setUser(null);
         setIsAdmin(false);
+        setIsAuthorizedClient(false);
+        setClientData(null);
+        setHasAccess(false);
       }
     });
 
@@ -124,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, isAuthorizedClient, hasAccess, clientData, signIn, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
