@@ -49,6 +49,7 @@ import LoginModal from './components/LoginModal';
 import { useAuth } from './contexts/AuthContext';
 import { IconButton } from '@mui/material';
 import { Logout as LogoutIcon } from '@mui/icons-material';
+import DebugAuth from './components/DebugAuth';
 
 // Mission Control Theme
 const theme = createTheme({
@@ -450,9 +451,12 @@ function App() {
       </Box>
       
       <LoginModal 
-        open={loginOpen && !user && !loading} 
+        open={loginOpen} 
         onClose={() => setLoginOpen(false)} 
       />
+      
+      {/* Debug info - remove this later */}
+      <DebugAuth />
     </ThemeProvider>
   );
 }
