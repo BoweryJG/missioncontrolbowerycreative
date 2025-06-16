@@ -187,7 +187,7 @@ function App() {
       {/* Stats Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {dashboardStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom variant="h6">
@@ -207,7 +207,7 @@ function App() {
 
       {/* Recent Activity & Quick Actions */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Recent Activity
@@ -232,7 +232,7 @@ function App() {
           </Paper>
         </Grid>
         
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               Quick Actions
